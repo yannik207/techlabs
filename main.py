@@ -45,6 +45,12 @@ df['Relative_Humidity'] = df['Relative_Humidity'].astype('int64')
 
 del df['Bright_Sunshine']
 
+
+
+
+
+###explorative analysis --------------------------------------
+
 num_variable = ['Sl', 'Year', 'Month', 'Max_Temp', 'Min_Temp', 'Rainfall',
                 'Relative_Humidity', 'Cloud_Coverage', 'Station_Number', 'X_COR', 'Y_COR', 'LONGITUDE', 'ALT', 'Period', 'Flood?']
 for i in num_variable:
@@ -56,11 +62,6 @@ for i in num_variable:
     plt.hist(df[i])
     plt.title(i)
     plt.show()
-
-
-
-###explorative analysis --------------------------------------
-
 ###Data preperation --------------------------------------
 
 ###Modelling --------------------------------------
