@@ -7,7 +7,7 @@
 
 ###load packages --------------------------
 import pandas as pd
-import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 from datatile.summary.df import DataFrameSummary
 ###load data --------------------------------------
@@ -53,15 +53,28 @@ del df['Bright_Sunshine']
 
 num_variable = ['Sl', 'Year', 'Month', 'Max_Temp', 'Min_Temp', 'Rainfall',
                 'Relative_Humidity', 'Cloud_Coverage', 'Station_Number', 'X_COR', 'Y_COR', 'LONGITUDE', 'ALT', 'Period', 'Flood?']
-for i in num_variable:
-    print(i)
-
 
 for i in num_variable:
     plt.figure()
     plt.hist(df[i])
     plt.title(i)
-    plt.show()
+    #plt.show()
+
+num_variable = df[['Sl', 'Year', 'Month', 'Max_Temp', 'Min_Temp', 'Rainfall',
+                'Relative_Humidity', 'Cloud_Coverage', 'Station_Number', 'X_COR', 'Y_COR', 'LONGITUDE', 'ALT', 'Period']]
+
+print(round(num_variable.corr(),2))
+
+corr = num_variable.corr()
+plt.figure()
+ax = sns.clustermap(
+    corr,
+    vmin=-1, vmax=1, center=0,
+    cmap='coolwarm',
+    square=True
+)
+plt.show()
+
 ###Data preperation --------------------------------------
 
 ###Modelling --------------------------------------
