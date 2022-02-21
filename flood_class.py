@@ -13,6 +13,7 @@ class flood(object):
 		self.data=kwargs.get("data", None)
 		self.feature=kwargs.get("feature", None)
 		self.place=kwargs.get("place", None)
+		self.test_size=kwargs.get("test_size", 0.8)
 
 
 	def preprocess(self):
@@ -52,8 +53,8 @@ class flood(object):
 
 	def split(self):
 
-		self.x_train,self.x_test,self.y_train,self.y_test=train_test_split(self.x,self.y,test_size=0.5)
-		self.x_train2,self.x_test2,self.y_train2,self.y_test2=train_test_split(self.data_stations[self.place][0],self.data_stations[self.place][1],test_size=0.5)
+		self.x_train,self.x_test,self.y_train,self.y_test=train_test_split(self.x,self.y,test_size=self.test_size)
+		self.x_train2,self.x_test2,self.y_train2,self.y_test2=train_test_split(self.data_stations[self.place][0],self.data_stations[self.place][1],test_size=self.test_size)
     
 
         # type casting - changing the datatype from float to integer.
@@ -71,7 +72,7 @@ class flood(object):
     
         # plot feature importance
 		plt.bar([x for x in range(len(importance))], importance)
-		#plt.show()
+		plt.show()
 
 
 	def LR_all(self):
@@ -80,17 +81,17 @@ class flood(object):
 		minmax.fit(self.x).transform(self.x)
         
 		x_train_std=minmax.fit_transform(self.x_train)         # fit the values in between 0 and 1.
-		y_train_std=minmax.transform(self.x_test)
+		x_test_std=minmax.fit_transform(self.x_test)
 
 		lr=LogisticRegression()
-		lr.fit(self.x_train,self.y_train)	 # train the model based on full dataset x&y
+		lr.fit(x_train_std,self.y_train)	 # train the model based on full dataset x&y
 
 		self.feature_importance(lr)
 
 		lr_acc=cross_val_score(lr,x_train_std,self.y_train,cv=3,scoring='accuracy',n_jobs=-1) #cross valuation of logisitc regression accuracy (Accuracy is the proportion of correct predictions over total predictions.)
 		lr_proba=cross_val_predict(lr,x_train_std,self.y_train,cv=3,method='predict_proba') #cross valuation logistic regression probability (Probability is the chance for class 1 (flood) to occure)
      							
-		y_pred=lr.predict(self.x_test)
+		y_pred=lr.predict(x_test_std)
         
 		print("train all stations, test all stations")
 		print("\naccuracy score:%f"%(accuracy_score(self.y_test,y_pred)*100))
@@ -105,17 +106,17 @@ class flood(object):
         
 
 		x_train_std=minmax.fit_transform(self.x_train)         # fit the values in between 0 and 1.
-		y_train_std=minmax.transform(self.x_test2)
+		x_test_std=minmax.fit_transform(self.x_test2)
 
 		lr=LogisticRegression()
-		lr.fit(self.x_train,self.y_train)	 # train the model based on full dataset x&y
+		lr.fit(x_train_std,self.y_train)	 # train the model based on full dataset x&y
 
 		self.feature_importance(lr)
 
 		lr_acc=cross_val_score(lr,x_train_std,self.y_train,cv=3,scoring='accuracy',n_jobs=-1) #cross valuation of logisitc regression accuracy (Accuracy is the proportion of correct predictions over total predictions.)
 		lr_proba=cross_val_predict(lr,x_train_std,self.y_train,cv=3,method='predict_proba') #cross valuation logistic regression probability (Probability is the chance for class 1 (flood) to occure)
      							
-		y_pred=lr.predict(self.x_test2)
+		y_pred=lr.predict(x_test_std)
         
 		print("train all stations, test one stations")
 		print("\naccuracy score:%f"%(accuracy_score(self.y_test2,y_pred)*100))
@@ -130,17 +131,17 @@ class flood(object):
         
 
 		x_train_std=minmax.fit_transform(self.x_train2)         # fit the values in between 0 and 1.
-		y_train_std=minmax.transform(self.x_test2)
+		x_test_std=minmax.fit_transform(self.x_test2)
 
 		lr=LogisticRegression()
-		lr.fit(self.x_train2,self.y_train2)	 # train the model based on one station
+		lr.fit(x_train_std,self.y_train2)	 # train the model based on one station
 
 		self.feature_importance(lr)
 
 		lr_acc=cross_val_score(lr,x_train_std,self.y_train2,cv=3,scoring='accuracy',n_jobs=-1) #cross valuation of logisitc regression accuracy (Accuracy is the proportion of correct predictions over total predictions.)
 		lr_proba=cross_val_predict(lr,x_train_std,self.y_train2,cv=3,method='predict_proba') #cross valuation logistic regression probability (Probability is the chance for class 1 (flood) to occure)
      							
-		y_pred=lr.predict(self.x_test2)
+		y_pred=lr.predict(x_test_std)
         
 		print("train one station, test one station")
 		print("\naccuracy score:%f"%(accuracy_score(self.y_test2,y_pred)*100))
@@ -156,17 +157,17 @@ class flood(object):
         
 
 		x_train_std=minmax.fit_transform(self.x_train2)         # fit the values in between 0 and 1.
-		y_train_std=minmax.transform(self.x_test)
+		x_test_std=minmax.fit_transform(self.x_test)
 
 		lr=LogisticRegression()
-		lr.fit(self.x_train2,self.y_train2)	 # train the model based on one station
+		lr.fit(x_train_std,self.y_train2)	 # train the model based on one station
 
 		self.feature_importance(lr)
 
 		lr_acc=cross_val_score(lr,x_train_std,self.y_train2,cv=3,scoring='accuracy',n_jobs=-1) #cross valuation of logisitc regression accuracy (Accuracy is the proportion of correct predictions over total predictions.)
 		lr_proba=cross_val_predict(lr,x_train_std,self.y_train2,cv=3,method='predict_proba') #cross valuation logistic regression probability (Probability is the chance for class 1 (flood) to occure)
      							
-		y_pred=lr.predict(self.x_test)
+		y_pred=lr.predict(x_test_std)
         
 		print("train one station, test all stations")
 		print("\naccuracy score:%f"%(accuracy_score(self.y_test,y_pred)*100))
