@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
@@ -6,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score,cross_val_predict
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score,recall_score,roc_auc_score,confusion_matrix
-
+from sklearn.ensemble import RandomForestClassifier
 
 class flood(object):
 	def __init__(self,**kwargs): 
@@ -71,7 +72,13 @@ class flood(object):
 			print('Feature {}: {}, Score: {}'.format(i,self.feature[i],np.round(v,2)))
     
         # plot feature importance
-		plt.bar([x for x in range(len(importance))], importance)
+		LR_importances = pd.Series(importance, index=self.feature)
+
+		fig, ax = plt.subplots()
+		LR_importances.plot.bar( ax=ax)
+		ax.set_title("Feature importances")
+		ax.set_ylabel("Importance")
+		fig.tight_layout()
 		plt.show()
 
 
@@ -170,6 +177,41 @@ class flood(object):
 		y_pred=lr.predict(x_test_std)
         
 		print("train one station, test all stations")
+		print("\naccuracy score:%f"%(accuracy_score(self.y_test,y_pred)*100))
+		print("recall score:%f"%(recall_score(self.y_test,y_pred)*100))
+		print("roc score:%f"%(roc_auc_score(self.y_test,y_pred)*100))
+		print(confusion_matrix(self.y_test,y_pred))
+
+
+	def Random_Forest(self):
+		minmax = preprocessing.MinMaxScaler(feature_range=(0,1))
+		minmax.fit(self.x).transform(self.x)
+
+		x_train_std=minmax.fit_transform(self.x_train)         # fit the values in between 0 and 1.
+		x_test_std=minmax.fit_transform(self.x_test)
+
+		rmf=RandomForestClassifier(max_depth=3,random_state=0)
+		rmf_clf=rmf.fit(x_train_std,self.y_train)
+
+		
+
+		rmf_clf_acc=cross_val_score(rmf_clf,x_train_std,self.y_train,cv=3,scoring="accuracy",n_jobs=-1)
+		rmf_proba=cross_val_predict(rmf_clf,x_train_std,self.y_train,cv=3,method='predict_proba')
+
+		y_pred=rmf.predict(x_test_std)
+
+		importances = rmf.feature_importances_ #Feature importances are provided by the fitted attribute feature_importances_ and they are computed as the mean and standard deviation of accumulation of the impurity decrease within each tree.
+		#std = np.std([tree.feature_importances_ for tree in rmf.estimators_], axis=0)
+
+		forest_importances = pd.Series(importances, index=self.feature)
+
+		fig, ax = plt.subplots()
+		forest_importances.plot.bar(ax=ax)
+		ax.set_title("Feature importances using MDI")
+		ax.set_ylabel("Mean decrease in impurity")
+		fig.tight_layout()
+		plt.show()
+
 		print("\naccuracy score:%f"%(accuracy_score(self.y_test,y_pred)*100))
 		print("recall score:%f"%(recall_score(self.y_test,y_pred)*100))
 		print("roc score:%f"%(roc_auc_score(self.y_test,y_pred)*100))
