@@ -22,28 +22,30 @@ print(df.info())
 ###Data Cleaning ---------------------------------------
 # to handle missing values in the column of 'Flood?'. we fill in 0
 df['Flood?'] = df['Flood?'].fillna(0)
+print(df.info())
 df.isnull().values.any()
 
 # Latitude has wrong values. change it with domain knowledge
 # Observation 0 to 1355 has the value of '22. Juli' instead of 22.17
 
-df['LATITUDE'] = df['LATITUDE'].replace('22. Jul', 22.17)
 print(df.head(5))
 
 
 # remove string from temp observations
-df['Max_Temp'] = df['Max_Temp'].str.extract('(\d+)')
-df['Max_Temp'] = df['Max_Temp'].astype('int64')
-df['Min_Temp'] = df['Min_Temp'].str.extract('(\d+)')
-df['Min_Temp'] = df['Min_Temp'].astype('int64')
-df['Cloud_Coverage'] = df['Cloud_Coverage'].str.extract('(\d+)')
-df['Cloud_Coverage'] = df['Cloud_Coverage'].astype('int64')
-df['Rainfall'] = df['Rainfall'].str.extract('(\d+)')
-df['Rainfall'] = df['Rainfall'].astype('int64')
-df['Relative_Humidity'] = df['Relative_Humidity'].str.extract('(\d+)')
-df['Relative_Humidity'] = df['Relative_Humidity'].astype('int64')
+header = df[['Max_Temp', 'Min_Temp', 'Cloud_Coverage', 'Rainfall', 'Relative_Humidity']]
 
-del df['Bright_Sunshine']
+
+
+df['LATITUDE'] = df['LATITUDE'].apply(lambda x: x.replace(',', '.'))
+df['LATITUDE'] = df['LATITUDE'].astype('float64')
+
+df['LONGITUDE'] = df['LONGITUDE'].apply(lambda x: x.replace(',', '.'))
+df['LONGITUDE'] = df['LONGITUDE'].astype('float64')
+
+df['Period'] = df['Period'].apply(lambda x: x.replace(',', '.'))
+df['Period'] = df['Period'].astype('float64')
+print(df.info())
+#del df['Bright_Sunshine']
 
 
 
@@ -73,7 +75,7 @@ ax = sns.clustermap(
     cmap='coolwarm',
     square=True
 )
-plt.show()
+
 
 #FC: Flooded cities ;  RC = Rainy Cities ; Sunshine Cities
 FC = df.groupby("Station_Names")["Flood?"].sum()
@@ -96,3 +98,19 @@ print(MinTemperature.sort_values(ascending = False))  #Besonders heiße Gebiete 
 ###Modelling --------------------------------------
 
 ###Evaluation --------------------------------------
+
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+X = df[['ALT', 'Bright_Sunshine', 'Cloud_Coverage', 'LATITUDE', 'LONGITUDE', 'Max_Temp', 'Min_Temp', 'Month', 'Period', 'Rainfall', 'Relative_Humidity', 'Sl', 'X_COR', 'Y_COR']]
+
+# performin standardization
+sc = StandardScaler()
+X_scaled = sc.fit_transform(X)
+
+components = None
+pca = PCA(n_components = 0.85)
+# perform PCA on the scaled data
+pca.fit(X_scaled)
+
